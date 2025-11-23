@@ -118,23 +118,26 @@ func main() {
 		Data:         []byte("genesis block"),
 		Nonce:        0,
 	}
+	// 工作量证明
 	firstBlock := proofOfWork(genesis, 4)
 
 	fmt.Println("nonce:", firstBlock.Nonce, "; hash:", firstBlock.Hash)
 
+	// 生成区块链
 	blockChain := BlockChain{*firstBlock}
 
 	for i := 0; i < 5; i++ {
 		data := []byte("第" + strconv.Itoa(i+1) + "个block")
 
+		// 创建新区块
 		newBlock := NewBlock(blockChain[len(blockChain)-1], data)
-
+		// 验证区块
 		valid := validateBlock(blockChain[len(blockChain)-1], *newBlock, 4)
 		if !valid {
 			fmt.Println("当前区块验证失败")
 			return
 		}
-
+		// 追加区块
 		blockChain = append(blockChain, *newBlock)
 	}
 	for _, block := range blockChain {
