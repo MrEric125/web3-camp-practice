@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.4;
 
 import "hardhat/console.sol";
 import "./IBank.sol";
@@ -22,7 +22,7 @@ contract Bank  is IBank{
     /**
      * 管理员
      */
-    address private   admin ;
+    address internal   admin ;
     
     /**
      * 初始化管理员是谁
@@ -40,7 +40,7 @@ contract Bank  is IBank{
     /**
      *  捐赠
      */
-    function addDeposit() external payable {
+    function addDeposit() external payable virtual  {
         _handleDeposit();
     }
 
@@ -130,6 +130,10 @@ contract Bank  is IBank{
         require(balance>0,"no balance");
         (bool success,)=admin.call{value:balance}("");
         require(success, "Withdrawal failed");
+
+
+        
+
     }
 
 }
