@@ -40,6 +40,9 @@ $ forge snapshot
 ```
 
 ### Anvil
+anvil - 创建一个本地测试网节点，用于部署和测试智能合约。它也可以用来分叉其他与 EVM 兼容的网络。
+
+
 
 ```shell
 $ anvil
@@ -52,6 +55,9 @@ $ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --pri
 ```
 
 ### Cast
+Cast 是 Foundry 用于执行以太坊 RPC 调用的命令行工具。 你可以进行智能合约调用、发送交易或检索任何类型的链数据——所有这些都来自你的命令行！
+cast 中文文档：
+https://learnblockchain.cn/docs/foundry/i18n/zh/reference/cast/cast.html
 
 ```shell
 $ cast <subcommand>
@@ -78,3 +84,4 @@ $ cast --help
 > cast wallet import --mnemonic "test test test test test test test test test test 
 test junk” -k <KEYSTORE_DIR> <ACCOUNT_NAME>
 ```
+中文文档：https://learnblockchain.cn/docs/foundry/i18n/zh/
