@@ -64,3 +64,17 @@ $ forge --help
 $ anvil --help
 $ cast --help
 ```
+
+
+我们有时候需要用到主网的合约， 可以用anvil --fork-url http://eth.llamarpc.com(可更换地址)
+
+### 钱包相关命令
+```bash
+ cast wallet -h # 查看所有的命令选项
+> cast wallet new [DIR] <ACCOUNT_NAME> # Create a new random keypair
+> cast wallet new-mnemonic  #  mnemonic phrase
+> cast wallet address [PRIVATE_KEY]  # private key to an address
+> cast wallet import -i -k <KEYSTORE_DIR> <ACCOUNT_NAME>
+> cast wallet import --mnemonic "test test test test test test test test test test 
+test junk” -k <KEYSTORE_DIR> <ACCOUNT_NAME>
+```

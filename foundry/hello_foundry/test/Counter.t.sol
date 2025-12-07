@@ -10,6 +10,15 @@ contract CounterTest is Test {
     function setUp() public {
         counter = new Counter();
         counter.setNumber(0);
+
+        mnemonic=vm.envString("MNEMONIC");
+        (deployer,)=deriveRememberKey(mnemonic, 0);
+
+    }
+
+    function run() public{
+        vm.startBroadcast();
+        counter =new Counter();
     }
 
     function test_Increment() public {
