@@ -28,9 +28,7 @@ export function AccountInfo() {
   const handleCopyAddress = () => {
     if (address) {
       navigator.clipboard.writeText(address);
-      toast("复制",{
-        description:"地址已复制"
-      });
+      toast("地址已复制");
     }
   };
 
@@ -40,17 +38,10 @@ export function AccountInfo() {
       { connector: injected() },
       {
         onSuccess: () => {
-          toast("连接",{
-            // d: '连接成功',
-            description: '钱包已成功连接。',
-          });
+          toast("钱包已成功连接。");
         },
         onError: (err) => {
-          toast("连接失败",{
-            // title: '连接失败',
-            description: err.message || '请确保已安装 MetaMask 并解锁。',
-            
-          });
+          toast("请确保已安装 MetaMask 并解锁。");
         },
       }
     );
@@ -61,9 +52,7 @@ export function AccountInfo() {
     setIsDisconnecting(true);
     disconnect();
     // 可以在这里添加断开后的回调，例如清除本地数据
-    toast("钱包已断开连接。",{
-      description: '钱包已断开连接。',
-    });
+    toast("钱包已断开连接。");
     setIsDisconnecting(false);
   };
 
