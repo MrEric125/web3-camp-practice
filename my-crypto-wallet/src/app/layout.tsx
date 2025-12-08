@@ -3,10 +3,7 @@ import "./globals.css";
 import dynamic from "next/dynamic";
 import { Toaster } from "@/components/ui/sonner";
 
-// Dynamically import Providers with SSR disabled to prevent hydration issues
-// const Providers = dynamic(() => import("./providers").then((mod) => ({ default: mod.Providers })), {
-//   ssr: false,
-// });
+
 import {Providers} from "./providers"
 
 export const metadata: Metadata = {
