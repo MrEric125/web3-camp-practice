@@ -40,7 +40,6 @@ const TransactionSender: React.FC = () => {
         toAddress,
         amount,
         password,
-        gasPrice ? BigInt(parseInt(gasPrice)) : undefined
       );
 
       setSuccess(`Transaction sent! Hash: ${result.hash}`);
@@ -60,17 +59,17 @@ const TransactionSender: React.FC = () => {
   const estimateGas = async () => {
     if (!publicClient || !currentAccount || !toAddress || !amount) return;
 
-    try {
-      const gas = await publicClient.estimateGas({
-        account: currentAccount.address as `0x${string}`,
-        to: toAddress as `0x${string}`,
-        value: parseEther(amount)
-      });
+    // try {
+    //   const gas = await publicClient.estimateGas({
+    //     account: currentAccount.address as `0x${string}`,
+    //     to: toAddress as `0x${string}`,
+    //     value: parseEther(amount)
+    //   });
 
-      setGasPrice(gas.toString());
-    } catch (err) {
-      console.error('Failed to estimate gas:', err);
-    }
+    //   setGasPrice(gas.toString());
+    // } catch (err) {
+    //   console.error('Failed to estimate gas:', err);
+    // }
   };
 
   return (

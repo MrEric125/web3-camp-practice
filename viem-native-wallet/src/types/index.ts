@@ -1,4 +1,6 @@
 // src/types/index.ts
+
+// 移除对 viem Account 的依赖，使用我们自己的类型
 export interface Account {
   id: string;
   name: string;

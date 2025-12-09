@@ -4,12 +4,11 @@ import { useWallet } from '../hooks/useWallet';
 import { isValidPrivateKey, isValidMnemonic } from '../utils/walletUtils';
 
 const AccountManager: React.FC = () => {
-  const { 
-    accounts, 
-    currentAccount, 
-    createNewAccount, 
+  const {
+    accounts,
+    currentAccount,
+    createNewAccount,
     importAccountByPrivateKey,
-    importAccountByMnemonic,
     switchAccount,
     exportPrivateKey
   } = useWallet();
@@ -57,14 +56,16 @@ const AccountManager: React.FC = () => {
           password
         );
       } else {
-        if (!isValidMnemonic(mnemonic)) {
-          throw new Error('Invalid mnemonic phrase');
-        }
-        await importAccountByMnemonic(
-          mnemonic,
-          accountName || 'Imported Account',
-          password
-        );
+        // 暂时不支持助记词导入
+        throw new Error('Mnemonic import not yet implemented');
+        // if (!isValidMnemonic(mnemonic)) {
+        //   throw new Error('Invalid mnemonic phrase');
+        // }
+        // await importAccountByMnemonic(
+        //   mnemonic,
+        //   accountName || 'Imported Account',
+        //   password
+        // );
       }
 
       setShowImportModal(false);
@@ -75,25 +76,25 @@ const AccountManager: React.FC = () => {
   };
 
   const handleExportPrivateKey = async (accountId: string) => {
-    try {
-      const exportPassword = prompt('Enter your password to export private key:');
-      if (!exportPassword) return;
+    // try {
+    //   const exportPassword = prompt('Enter your password to export private key:');
+    //   if (!exportPassword) return;
 
-      const pk = exportPrivateKey(accountId, exportPassword);
+    //   const pk = exportPrivateKey(accountId, exportPassword);
       
-      // 显示私钥（在实际应用中应该更安全地处理）
-      const shouldCopy = confirm(
-        'Private key will be copied to clipboard. Make sure no one is watching.\n\n' +
-        'Press OK to copy.'
-      );
+    //   // 显示私钥（在实际应用中应该更安全地处理）
+    //   const shouldCopy = confirm(
+    //     'Private key will be copied to clipboard. Make sure no one is watching.\n\n' +
+    //     'Press OK to copy.'
+    //   );
       
-      if (shouldCopy) {
-        await navigator.clipboard.writeText(pk);
-        alert('Private key copied to clipboard');
-      }
-    } catch (err) {
-      alert('Failed to export private key');
-    }
+    //   if (shouldCopy) {
+    //     await navigator.clipboard.writeText(pk);
+    //     alert('Private key copied to clipboard');
+    //   }
+    // } catch (err) {
+    //   alert('Failed to export private key');
+    // }
   };
 
   const resetForm = () => {
