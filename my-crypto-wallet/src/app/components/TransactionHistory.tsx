@@ -220,7 +220,7 @@ function useTransactionHistory() {
                 id: tx.hash,
                 hash: tx.hash,
                 type: tx.from?.toLowerCase() === address?.toLowerCase() ? 'send' : 'receive',
-                amount: formatEther(tx.value || 0n),
+                amount: formatEther(tx.value || BigInt(21000)),
                 symbol: 'ETH',
                 from: tx.from || '',
                 to: tx.to || '',
