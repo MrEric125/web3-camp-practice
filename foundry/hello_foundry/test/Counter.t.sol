@@ -11,8 +11,6 @@ contract CounterTest is Test {
         counter = new Counter();
         counter.setNumber(0);
 
-        mnemonic=vm.envString("MNEMONIC");
-        (deployer,)=deriveRememberKey(mnemonic, 0);
 
     }
 

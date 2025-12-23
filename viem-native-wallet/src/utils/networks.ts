@@ -2,6 +2,16 @@
 import { Network } from '../types';
 
 export const NETWORKS: Network[] = [
+
+    {
+    id: 'Anvil Local',
+    name: 'Anvil Local',
+    rpcUrl: 'http://localhost:8545',
+    chainId: 31337,
+    currency: 'ETH',
+    explorerUrl: 'https://etherscan.io',
+    isTestnet: false
+  },
   {
     id: 'ethereum-mainnet',
     name: 'Ethereum Mainnet',
