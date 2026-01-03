@@ -1,7 +1,7 @@
 // components/SendTransaction.tsx
 'use client';
 import { useState, useEffect } from 'react';
-import { useSendTransaction, useWaitForTransactionReceipt, useEstimateGas, useBalance, useAccount, useWalletClient } from 'wagmi';
+import { useEstimateGas, useBalance, useAccount, useWalletClient } from 'wagmi';
 import { parseEther, formatEther, isAddress } from 'viem';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +13,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Send, AlertTriangle, CheckCircle, Clock, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 import { TransactionConfirmation } from './TransactionConfirmation';
+import { walletManager } from '../connectors/PrivateKeyConnector';
+import {anvilChain}  from '@/chain-config';
 
 export function SendTransaction() {
   const [to, setTo] = useState('');
@@ -22,9 +24,12 @@ export function SendTransaction() {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const { address } = useAccount();
+  const { address, connector } = useAccount();
   const { data: balance } = useBalance({ address });
   const { data: walletClient } = useWalletClient();
+
+  // 检测是否使用私钥钱包
+  const isPrivateKeyWallet = connector?.id === 'privateKey';
 
   // Gas estimation
   const { data: estimatedGas } = useEstimateGas({
@@ -64,7 +69,7 @@ export function SendTransaction() {
   };
 
   const handleConfirmTransaction = async () => {
-    if (!walletClient || !address) {
+    if (!address) {
       toast.error('钱包未连接');
       return;
     }
@@ -72,16 +77,48 @@ export function SendTransaction() {
     setIsProcessing(true);
 
     try {
-      // Send transaction directly using wallet client (bypasses MetaMask confirmation for demo)
-      const hash = await walletClient.sendTransaction({
-        account: address,
-        to: to as `0x${string}`,
-        value: parseEther(value),
-        gas: estimatedGas || BigInt(21000),
-      });
+      let hash: `0x${string}`;
+
+      if (isPrivateKeyWallet) {
+        // 对于私钥钱包，直接创建 wallet client 并发送
+        const selectedWallet = walletManager.getSelectedWallet();
+        if (!selectedWallet) {
+          toast.error('未选择钱包');
+          return;
+        }
+
+        const { createWalletClient, http } = await import('viem');
+        const { privateKeyToAccount } = await import('viem/accounts');
+        
+        const account = privateKeyToAccount(selectedWallet.privateKey as `0x${string}`);
+        const walletClient = createWalletClient({
+          account,
+          transport: http(anvilChain.rpcUrls.default.http[0]),
+          chain: anvilChain,
+        });
+
+        hash = await walletClient.sendTransaction({
+          to: to as `0x${string}`,
+          value: parseEther(value),
+          gas: estimatedGas || BigInt(21000),
+        });
+      } else {
+        // 对于其他钱包（比如 MetaMask），使用标准的 wagmi wallet client
+        if (!walletClient) {
+          toast.error('钱包客户端未初始化');
+          return;
+        }
+
+        hash = await walletClient.sendTransaction({
+          account: address,
+          to: to as `0x${string}`,
+          value: parseEther(value),
+          gas: estimatedGas || BigInt(21000),
+        });
+      }
 
       setShowConfirmation(false);
-      toast.success('交易已直接发送到区块链！');
+      toast.success('交易已发送到区块链！');
 
       // Reset form
       setTo('');
@@ -225,6 +262,7 @@ export function SendTransaction() {
         onCancel={handleCancelTransaction}
         transactionData={to && value ? { to, value } : null}
         isLoading={isProcessing}
+        isPrivateKeyWallet={isPrivateKeyWallet}
       />
     </div>
   );

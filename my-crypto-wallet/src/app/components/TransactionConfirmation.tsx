@@ -22,6 +22,7 @@ interface TransactionConfirmationProps {
   onCancel: () => void;
   transactionData: TransactionData | null;
   isLoading?: boolean;
+  isPrivateKeyWallet?: boolean;
 }
 
 export function TransactionConfirmation({
@@ -29,7 +30,8 @@ export function TransactionConfirmation({
   onConfirm,
   onCancel,
   transactionData,
-  isLoading = false
+  isLoading = false,
+  isPrivateKeyWallet = false
 }: TransactionConfirmationProps) {
   const { address } = useAccount();
   const { data: balance } = useBalance({ address });
@@ -144,6 +146,38 @@ export function TransactionConfirmation({
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">网络:</span>
             <Badge variant="outline">Anvil Local</Badge>
+          </div>
+
+          {/* Transaction Processing Info */}
+          <div className={`p-3 rounded-lg ${
+            isPrivateKeyWallet
+              ? 'bg-green-50 dark:bg-green-950/50'
+              : 'bg-orange-50 dark:bg-orange-950/50'
+          }`}>
+            <div className="flex items-start gap-2">
+              <CheckCircle className={`h-4 w-4 mt-0.5 ${
+                isPrivateKeyWallet ? 'text-green-500' : 'text-orange-500'
+              }`} />
+              <div className="text-sm">
+                <p className={`font-medium ${
+                  isPrivateKeyWallet
+                    ? 'text-green-900 dark:text-green-100'
+                    : 'text-orange-900 dark:text-orange-100'
+                }`}>
+                  {isPrivateKeyWallet ? '直接发送交易' : 'MetaMask 确认'}
+                </p>
+                <p className={`${
+                  isPrivateKeyWallet
+                    ? 'text-green-700 dark:text-green-300'
+                    : 'text-orange-700 dark:text-orange-300'
+                }`}>
+                  {isPrivateKeyWallet
+                    ? '交易将直接使用您的私钥签名并发送到区块链，无需外部钱包确认。'
+                    : '交易将通过 MetaMask 钱包进行签名和确认。'
+                  }
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* Security Notice */}
