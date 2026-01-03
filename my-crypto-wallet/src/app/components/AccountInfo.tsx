@@ -6,11 +6,13 @@ import { useConnect } from 'wagmi';
 import { injected } from 'wagmi/connectors'; // 用于连接 MetaMask
 import { formatEther } from 'viem';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Copy, LogOut, Wallet, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { privateKeyConnector } from '../connectors/PrivateKeyConnector';
 
 export function AccountInfo() {
   // Wagmi Hooks
@@ -21,8 +23,9 @@ export function AccountInfo() {
   const { connect, error: connectError, isPending: isConnectPending } = useConnect();
 
   // 本地状态
-//   const { toast } = useToast();
   const [isDisconnecting, setIsDisconnecting] = useState(false);
+  const [showImport, setShowImport] = useState(false);
+  const [privateKeyInput, setPrivateKeyInput] = useState('');
 
   // 处理复制地址
   const handleCopyAddress = () => {
@@ -54,6 +57,25 @@ export function AccountInfo() {
     // 可以在这里添加断开后的回调，例如清除本地数据
     toast("钱包已断开连接。");
     setIsDisconnecting(false);
+  };
+
+  // 处理导入私钥
+  const handleImportPrivateKey = async () => {
+    if (!privateKeyInput || !/^0x[0-9a-fA-F]{64}$/.test(privateKeyInput)) {
+      toast.error('Invalid private key format. Must be 0x followed by 64 hexadecimal characters.');
+      return;
+    }
+
+    localStorage.setItem('privateKey', privateKeyInput);
+
+    try {
+      await connect({ connector: privateKeyConnector });
+      toast.success('Private key imported and connected successfully.');
+      setShowImport(false);
+      setPrivateKeyInput('');
+    } catch (error) {
+      toast.error('Failed to connect with private key.');
+    }
   };
 
   // ========== 渲染逻辑 ==========
@@ -184,10 +206,47 @@ export function AccountInfo() {
           {isConnectPending ? '连接中...' : '连接 MetaMask'}
         </Button>
 
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">Or</span>
+          </div>
+        </div>
+
+        <Button
+          onClick={() => setShowImport(true)}
+          variant="outline"
+          size="lg"
+          className="w-full"
+        >
+          Import Private Key
+        </Button>
+
+        {showImport && (
+          <div className="space-y-4 p-4 border rounded-lg bg-muted/50">
+            <Input
+              type="password"
+              placeholder="Enter your private key (0x...)"
+              value={privateKeyInput}
+              onChange={(e) => setPrivateKeyInput(e.target.value)}
+            />
+            <div className="flex gap-2">
+              <Button onClick={handleImportPrivateKey} className="flex-1" disabled={isConnectPending}>
+                Import and Connect
+              </Button>
+              <Button variant="outline" onClick={() => { setShowImport(false); setPrivateKeyInput(''); }}>
+                Cancel
+              </Button>
+            </div>
+          </div>
+        )}
+
         {/* 辅助信息 */}
         <div className="text-center space-y-2">
           <p className="text-sm text-muted-foreground">
-            推荐使用 MetaMask 进行连接
+            推荐使用 MetaMask 进行连接，或导入私钥
           </p>
           <p className="text-xs text-muted-foreground">
             确保你已切换到正确的网络（例如：本地 Anvil 网络）
