@@ -7,7 +7,10 @@ import {anvilChain } from '../../../chain-config'
 export interface Wallet {
   id: string;
   name: string;
-  privateKey: string;
+  type: 'privateKey' | 'mnemonic';
+  privateKey?: string;
+  mnemonic?: string;
+  derivationPath?: string;
   address: string;
 }
 
@@ -112,12 +115,13 @@ export const privateKeyConnector = createConnector((config) => ({
 export const walletManager = {
   getWallets,
   setWallets,
-  addWallet: (name: string, privateKey: string) => {
+  addPrivateKeyWallet: (name: string, privateKey: string) => {
     const account = privateKeyToAccount(privateKey as `0x${string}`);
     const wallets = getWallets();
     const newWallet: Wallet = {
       id: Date.now().toString(),
       name,
+      type: 'privateKey',
       privateKey,
       address: account.address,
     };

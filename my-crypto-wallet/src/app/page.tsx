@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 // 你的自定义组件
 import { AccountInfo } from './components/AccountInfo';
+import { WalletManager } from './components/WalletManager';
 import { SendTransaction } from './components/SendTransaction';
 import { ReceivePayment } from './components/ReceivePayment';
 import { NetworkSwitcher } from './components/NetworkSwitcher';
@@ -25,13 +26,16 @@ export default function HomePage() {
         <div className="lg:col-span-2 space-y-6">
           <Card className="shadow-lg">
             <CardHeader className="pb-4">
-              <CardTitle className="text-xl flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
-                账户概览
-              </CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-xl flex items-center gap-2">
+                  <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
+                  账户概览
+                </CardTitle>
+                <WalletManager />
+              </div>
             </CardHeader>
             <CardContent>
-              <AccountInfo /> {/* 这个组件内部也需要用新的UI组件重构 */}
+              <AccountInfo />
             </CardContent>
           </Card>
 

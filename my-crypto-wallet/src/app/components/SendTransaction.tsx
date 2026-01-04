@@ -79,43 +79,40 @@ export function SendTransaction() {
     try {
       let hash: `0x${string}`;
 
-      if (isPrivateKeyWallet) {
-        // 对于私钥钱包，直接创建 wallet client 并发送
-        const selectedWallet = walletManager.getSelectedWallet();
-        if (!selectedWallet) {
-          toast.error('未选择钱包');
-          return;
-        }
+      // 对于私钥钱包和助记词钱包，直接创建 wallet client 并发送
+      const selectedWallet = walletManager.getSelectedWallet();
+      if (!selectedWallet) {
+        toast.error('未选择钱包');
+        return;
+      }
 
-        const { createWalletClient, http } = await import('viem');
+      const { createWalletClient, http } = await import('viem');
+
+      let account;
+      if (selectedWallet.type === 'privateKey') {
         const { privateKeyToAccount } = await import('viem/accounts');
-        
-        const account = privateKeyToAccount(selectedWallet.privateKey as `0x${string}`);
-        const walletClient = createWalletClient({
-          account,
-          transport: http(anvilChain.rpcUrls.default.http[0]),
-          chain: anvilChain,
-        });
-
-        hash = await walletClient.sendTransaction({
-          to: to as `0x${string}`,
-          value: parseEther(value),
-          gas: estimatedGas || BigInt(21000),
+        account = privateKeyToAccount(selectedWallet.privateKey as `0x${string}`);
+      } else if (selectedWallet.type === 'mnemonic') {
+        const { mnemonicToAccount } = await import('viem/accounts');
+        account = mnemonicToAccount(selectedWallet.mnemonic as string, {
+          path: (selectedWallet.derivationPath || "m/44'/60'/0'/0/0") as `m/44'/60'/${string}`
         });
       } else {
-        // 对于其他钱包（比如 MetaMask），使用标准的 wagmi wallet client
-        if (!walletClient) {
-          toast.error('钱包客户端未初始化');
-          return;
-        }
-
-        hash = await walletClient.sendTransaction({
-          account: address,
-          to: to as `0x${string}`,
-          value: parseEther(value),
-          gas: estimatedGas || BigInt(21000),
-        });
+        toast.error('不支持的钱包类型');
+        return;
       }
+
+      const walletClientInstance = createWalletClient({
+        account,
+        transport: http(anvilChain.rpcUrls.default.http[0]),
+        chain: anvilChain,
+      });
+
+      hash = await walletClientInstance.sendTransaction({
+        to: to as `0x${string}`,
+        value: parseEther(value),
+        gas: estimatedGas || BigInt(21000),
+      });
 
       setShowConfirmation(false);
       toast.success('交易已发送到区块链！');
