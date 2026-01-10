@@ -13,7 +13,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Send, AlertTriangle, CheckCircle, Clock, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 import { TransactionConfirmation } from './TransactionConfirmation';
-import { walletManager } from '../connectors/PrivateKeyConnector';
+import { walletManager } from '@/src/app/connectors/wallet/PrivateKeyConnector';
 import {anvilChain}  from '@/chain-config';
 
 export function SendTransaction() {

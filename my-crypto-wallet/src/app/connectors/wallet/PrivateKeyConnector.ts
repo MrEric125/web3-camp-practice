@@ -2,7 +2,7 @@ import { createConnector } from 'wagmi';
 import { privateKeyToAccount } from 'viem/accounts';
 import { createWalletClient, http } from 'viem';
 import type { Chain } from 'viem';
-import {anvilChain } from '../../../chain-config'
+import {anvilChain } from '../../../../chain-config'
 
 export interface Wallet {
   id: string;

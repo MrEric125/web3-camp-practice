@@ -3,7 +3,7 @@ import { hdKeyToAccount, mnemonicToAccount } from 'viem/accounts';
 import { createWalletClient, http } from 'viem';
 import type { Chain } from 'viem';
 import { generateMnemonic, validateMnemonic } from 'bip39';
-import { anvilChain } from '../../../chain-config';
+import { anvilChain } from '../../../../chain-config';
 import type { Wallet } from './PrivateKeyConnector';
 
 const getWallets = (): Wallet[] => {

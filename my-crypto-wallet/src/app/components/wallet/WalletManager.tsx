@@ -7,8 +7,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, Trash2, Key, FileText, Wallet as WalletIcon } from 'lucide-react';
 import { toast } from 'sonner';
-import { privateKeyConnector, walletManager, type Wallet as WalletType } from '../connectors/PrivateKeyConnector';
-import { mnemonicConnector } from '../connectors/MnemonicConnector';
+import { privateKeyConnector, walletManager, type Wallet as WalletType } from '@/src/app/connectors/wallet/PrivateKeyConnector';
+import { mnemonicConnector } from '@/src/app/connectors/wallet/MnemonicConnector';
 import { AddWalletDialog } from './AddWalletDialog';
 
 export function WalletManager() {

@@ -4,21 +4,25 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 // 你的自定义组件
-import { AccountInfo } from './components/AccountInfo';
-import { WalletManager } from './components/WalletManager';
-import { SendTransaction } from './components/SendTransaction';
-import { ReceivePayment } from './components/ReceivePayment';
-import { NetworkSwitcher } from './components/NetworkSwitcher';
-import { AssetsTable } from './components/AssetsTable';
-import { TransactionHistory } from './components/TransactionHistory';
+import { AccountInfo } from './components/wallet/AccountInfo';
+import { WalletManager } from './components/wallet/WalletManager';
+import { SendTransaction } from './components/wallet/SendTransaction';
+import { ReceivePayment } from './components/wallet/ReceivePayment';
+import { NetworkSwitcher } from './components/wallet/NetworkSwitcher';
+import { AssetsTable } from './components/wallet/AssetsTable';
+import { TransactionHistory } from './components/wallet/TransactionHistory';
+import { ThemeToggle } from './components/wallet/ThemeToggle';
 // import { ActivityFeed } from '@/components/ActivityFeed'; // 假设你新增的活动流组件
 
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 p-4 md:p-8">
-      <header className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">我的加密资产管理器</h1>
-        <p className="text-slate-600 dark:text-slate-400">安全地查看、发送与管理你的数字资产</p>
+      <header className="mb-8 flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">我的资产管理器</h1>
+          <p className="text-slate-600 dark:text-slate-400">安全地查看、发送与管理你的数字资产</p>
+        </div>
+        <ThemeToggle />
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

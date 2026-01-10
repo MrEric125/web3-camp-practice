@@ -5,8 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { walletManager, type Wallet as WalletType } from '../connectors/PrivateKeyConnector';
-import { mnemonicWalletManager } from '../connectors/MnemonicConnector';
+import { walletManager, type Wallet as WalletType } from '@/src/app/connectors/wallet/PrivateKeyConnector';
+import { mnemonicWalletManager } from '@/src/app/connectors/wallet/MnemonicConnector';
 
 interface AddWalletDialogProps {
   isOpen: boolean;

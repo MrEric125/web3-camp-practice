@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Copy, LogOut, Wallet, AlertCircle, Check } from 'lucide-react';
 import { toast } from 'sonner';
-import { walletManager } from '../connectors/PrivateKeyConnector';
+import { walletManager } from '@/src/app/connectors/wallet/PrivateKeyConnector';
 
 export function AccountInfo() {
   // Wagmi Hooks
