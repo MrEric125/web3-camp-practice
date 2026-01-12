@@ -2,21 +2,15 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { RefreshCw, BarChart3 } from 'lucide-react';
+import { tradeApi, calculateStartDate, generateDateLabels, type HourlyVolumeData } from '../../lib/api';
 
-interface HourlyVolumeData {
-  date: string;
-  hour: number;
-  volume: number;
-}
 
-interface TradeVolumeResponse {
-  code: number;
-  message: string;
-  result: HourlyVolumeData[];
-}
 
 export function TradeVolumeChart() {
   const [daysToShow, setDaysToShow] = useState('7');
+  const [selectedSymbol, setSelectedSymbol] = useState('ETHUSDT');
   const [chartData, setChartData] = useState<HourlyVolumeData[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,13 +36,12 @@ export function TradeVolumeChart() {
   };
 
   // 获取API数据
-  const fetchVolumeData = async (days: number) => {
+  const fetchVolumeData = async (days: number, symbol: string) => {
     setLoading(true);
     setError(null);
     try {
-      const startDate = getStartDate(days);
-      const response = await fetch(`http://localhost:8088/api/trade/volume/query?startDate=${startDate}&symbol=ETHUSDT`);
-      const result: TradeVolumeResponse = await response.json();
+      const startDate = calculateStartDate(days);
+      const result = await tradeApi.getTradeVolume(startDate, symbol);
 
       if (result.code !== 200) {
         throw new Error(result.message || '获取数据失败');
@@ -63,30 +56,53 @@ export function TradeVolumeChart() {
     }
   };
 
-  // 当天数变化时重新获取数据
+  // 当天数或交易对变化时重新获取数据
   useEffect(() => {
     const days = parseInt(daysToShow);
-    fetchVolumeData(days);
-  }, [daysToShow]);
+    fetchVolumeData(days, selectedSymbol);
+  }, [daysToShow, selectedSymbol]);
+
+  // 手动刷新数据
+  const handleRefreshData = () => {
+    const days = parseInt(daysToShow);
+    fetchVolumeData(days, selectedSymbol);
+  };
 
   const maxVolume = Math.max(...chartData.map(d => d.volume));
   const minVolume = Math.min(...chartData.map(d => d.volume));
 
-  // 获取强度等级 (1-5)
+  // 获取强度等级 (1-11)
   const getIntensityLevel = (volume: number): number => {
-    if (maxVolume === minVolume) return 3; // 如果所有值相同，返回中等强度
+    if (maxVolume === minVolume) return 6; // 如果所有值相同，返回中等强度
     const normalized = (volume - minVolume) / (maxVolume - minVolume);
-    return Math.ceil(normalized * 5) || 1;
+    return Math.ceil(normalized * 11) || 1;
   };
 
-  // 获取颜色强度
+  // 获取颜色强度 - 使用11级精细颜色渐变
   const getColorClass = (level: number): string => {
     const colors = [
-      'bg-blue-50 dark:bg-blue-950/20',
-      'bg-blue-100 dark:bg-blue-900/30',
-      'bg-blue-200 dark:bg-blue-800/40',
-      'bg-blue-300 dark:bg-blue-700/50',
-      'bg-blue-400 dark:bg-blue-600/60'
+      // 等级1: 非常淡的绿色 (最低交易量)
+      'bg-green-50 dark:bg-green-950/20 border-green-100 dark:border-green-900/30',
+      // 等级2: 淡绿色
+      'bg-green-100 dark:bg-green-900/30 border-green-200 dark:border-green-800/40',
+      // 等级3: 浅绿色
+      'bg-green-200 dark:bg-green-800/40 border-green-300 dark:border-green-700/50',
+      // 等级4: 中等绿色
+      'bg-green-300 dark:bg-green-700/50 border-green-400 dark:border-green-600/60',
+      // 等级5: 较深绿色
+      'bg-green-400 dark:bg-green-600/60 border-green-500 dark:border-green-500/70',
+      // 等级6: 深绿色 (中等交易量)
+      'bg-green-500 dark:bg-green-500/70 border-green-600 dark:border-green-400/80',
+      // 等级7: 浅黄色
+      'bg-yellow-200 dark:bg-yellow-900/40 border-yellow-300 dark:border-yellow-800/50',
+      // 等级8: 中黄色
+      'bg-yellow-300 dark:bg-yellow-800/50 border-yellow-400 dark:border-yellow-700/60',
+      // 等级9: 橙色
+      'bg-orange-400 dark:bg-orange-800/60 border-orange-500 dark:border-orange-700/70',
+      // 等级10: 深橙色
+      'bg-orange-500 dark:bg-orange-700/70 border-orange-600 dark:border-orange-600/80',
+      // 等级11: 红色 (最高交易量)
+      'bg-red-500 dark:bg-red-600/80 border-red-600 dark:border-red-500/90'
     ];
     return colors[level - 1] || colors[0];
   };
@@ -100,7 +116,7 @@ export function TradeVolumeChart() {
     return volume.toString();
   };
 
-  const dates = generateDates(parseInt(daysToShow));
+  const dates = generateDateLabels(parseInt(daysToShow));
 
   // 计算标签间隔
   const getLabelInterval = (total: number, maxLabels: number = 6) => {
@@ -114,24 +130,55 @@ export function TradeVolumeChart() {
     <Card className="shadow-lg">
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-xl">交易量热力图</CardTitle>
-          <Select value={daysToShow} onValueChange={setDaysToShow}>
-            <SelectTrigger className="w-[120px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="1">1天</SelectItem>
-              <SelectItem value="3">3天</SelectItem>
-              <SelectItem value="7">7天</SelectItem>
-              <SelectItem value="14">14天</SelectItem>
-              <SelectItem value="30">30天</SelectItem>
-              <SelectItem value="60">60天</SelectItem>
-              <SelectItem value="90">90天</SelectItem>
-            </SelectContent>
-          </Select>
+          <CardTitle className="text-xl flex items-center gap-2">
+            <BarChart3 className="h-5 w-5" />
+            交易量热力图
+          </CardTitle>
+          <div className="flex items-center gap-2">
+            {/* 切换标的 */}
+            <Select value={selectedSymbol} onValueChange={setSelectedSymbol}>
+              <SelectTrigger className="w-[120px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ETHUSDT">ETH/USDT</SelectItem>
+                <SelectItem value="BNBUSDT">BNB/USDT</SelectItem>
+                <SelectItem value="BTCUSDT">BTC/USDT</SelectItem>
+                <SelectItem value="SOLUSDT">SOL/USDT</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* 更新数据按钮 */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRefreshData}
+              disabled={loading}
+              className="flex items-center gap-2"
+            >
+              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+              更新数据
+            </Button>
+
+            {/* 切换天数 */}
+            <Select value={daysToShow} onValueChange={setDaysToShow}>
+              <SelectTrigger className="w-[120px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1">1天</SelectItem>
+                <SelectItem value="3">3天</SelectItem>
+                <SelectItem value="7">7天</SelectItem>
+                <SelectItem value="14">14天</SelectItem>
+                <SelectItem value="30">30天</SelectItem>
+                <SelectItem value="60">60天</SelectItem>
+                <SelectItem value="90">90天</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
         <p className="text-sm text-muted-foreground">
-          显示过去{daysToShow}天24小时交易量分布（单位：USD）
+          显示 {selectedSymbol} 过去{daysToShow}天24小时交易量分布（单位：USD）
         </p>
       </CardHeader>
       <CardContent>
@@ -156,7 +203,7 @@ export function TradeVolumeChart() {
                 <p className="text-sm text-red-600 dark:text-red-400 mb-2">数据加载失败</p>
                 <p className="text-xs text-muted-foreground">{error}</p>
                 <button
-                  onClick={() => fetchVolumeData(parseInt(daysToShow))}
+                  onClick={handleRefreshData}
                   className="mt-2 px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
                 >
                   重试
@@ -241,11 +288,11 @@ export function TradeVolumeChart() {
               </div>
 
               {/* 图例 */}
-              <div className="flex items-center justify-center gap-2 pt-4 border-t">
+              <div className="flex items-center justify-center gap-1 pt-4 border-t flex-wrap">
                 <span className="text-sm text-muted-foreground mr-2">交易量强度:</span>
-                {[1, 2, 3, 4, 5].map(level => (
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(level => (
                   <div key={level} className="flex items-center gap-1">
-                    <div className={`w-4 h-4 border rounded-sm ${getColorClass(level)}`} />
+                    <div className={`w-3 h-3 border rounded-sm ${getColorClass(level)}`} />
                     <span className="text-xs text-muted-foreground">Lv{level}</span>
                   </div>
                 ))}
